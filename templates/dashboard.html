@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-2xl font-bold mb-6">Bem-vindo, {{ current_user.name }}!</h2>
+    
+    {% if not current_user.is_paid %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+        <p>Você ainda não é um assinante. Assine agora para ter acesso completo!</p>
+    </div>
+    
+    <div class="text-center">
+        <button id="checkout-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg">
+            Assinar Agora
+        </button>
+    </div>
+
+    <script>
+        // Cria uma instância do Stripe
+        const stripe = Stripe('{{ stripe_public_key }}');
+        const checkoutButton = document.getElementById('checkout-button');
+
+        checkoutButton.addEventListener('click', function() {
+            // Desabilita o botão para evitar múltiplos cliques
+            checkoutButton.disabled = true;
+            checkoutButton.textContent = 'Processando...';
+
+            // Cria a sessão de checkout
+            fetch('/criar-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                // Redireciona para o checkout do Stripe
+                return stripe.redirectToCheckout({ sessionId: data.sessionId });
+            })
+            .then(function(result) {
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+            })
+            .catch(function(error) {
+                console.error('Erro:', error);
+                alert('Erro: ' + error.message);
+                // Reativa o botão
+                checkoutButton.disabled = false;
+                checkoutButton.textContent = 'Assinar Agora';
+            });
+        });
+    </script>
+    {% else %}
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
+        <p>Obrigado por ser um assinante! Você tem acesso completo ao conteúdo.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
