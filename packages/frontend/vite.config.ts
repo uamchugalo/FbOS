@@ -4,7 +4,6 @@ import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: resolve(__dirname),
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
@@ -20,5 +19,10 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
+    },
   },
 });
