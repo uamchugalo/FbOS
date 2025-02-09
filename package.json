@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "heroku-postbuild": "cd packages/frontend && npm install && npm run build"
+    "heroku-postbuild": "cd packages/frontend && npm install && NODE_ENV=production npm run build"
   },
   "engines": {
     "node": "18.x"
